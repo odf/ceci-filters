@@ -18,27 +18,23 @@ var source = function(x) {
   return ch;
 };
 
-var makeChannels = function() {
+
+var channels = function() {
   var chans = [];
   for (var i of 'abc'.split('').values())
     chans.push(source(i));
   return chans;
 };
 
-core.go(function*() {
-  yield cf.chain(cf.merge(makeChannels()),
-                 [cf.take, 30],
-                 [cf.each, console.log]);
 
+var linefeed = function() {
   console.log();
+};
 
-  yield cf.chain(cf.combine(makeChannels()),
-                 [cf.take, 20],
-                 [cf.each, console.log]);
 
-  console.log();
-
-  yield cf.chain(cf.zip(makeChannels()),
-                 [cf.take, 20],
-                 [cf.each, console.log]);
-});
+cf.chain(null,
+         channels, cf.merge,   [cf.take, 30], [cf.each, console.log],
+         linefeed(),
+         channels, cf.combine, [cf.take, 20], [cf.each, console.log],
+         linefeed(),
+         channels, cf.zip,     [cf.take, 20], [cf.each, console.log] );

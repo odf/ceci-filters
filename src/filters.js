@@ -113,13 +113,22 @@ exports.each = function(fn, ch, options) {
   return cc.pull(done);
 };
 
-exports.chain = function(arg) {
-  var val = arg;
-  Array.prototype.slice.call(arguments, 1).forEach(function(form) {
-    if (Array.isArray(form))
-      val = form[0].apply(null, [].concat(form[1], val, form.slice(2)));
-    else
-      val = form(val);
+exports.chain = function(initial) {
+  var args = Array.prototype.slice.call(arguments, 1);
+
+  return core.go(function*() {
+    var val = initial;
+    var form;
+
+    for (var i = 0; i < args.length; ++i) {
+      form = args[i];
+      val = yield val;
+      if (Array.isArray(form))
+        val = form[0].apply(null, [].concat(form[1], val, form.slice(2)));
+      else
+        val = form(val);
+    }
+    return val;
+
   });
-  return val;
 };

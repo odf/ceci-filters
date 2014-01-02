@@ -8,27 +8,37 @@ var infiniteRange = function*(start) {
     yield i;
 };
 
+var print = function(text) {
+  return function() {
+    console.log(text);
+  };
+};
+
+var constant = function(val) {
+  return function() {
+    return val;
+  }
+};
+
 var ms = parseInt(process.argv[2] || "10");
 var ch = cc.source(infiniteRange(1));
 
-core.go(function*() {
-  console.log('Taking the first 10 numbers:');
+cc.chain(null,
 
-  yield cc.chain(ch,
-                 [cc.take, 10, { keepInput: true }],
-                 [cc.each, console.log]);
+         print('Taking the first 10 numbers:'),
+         constant(ch),
+         [cc.take, 10, { keepInput: true }],
+         [cc.each, console.log],
+         print(''),
 
-  console.log();
-  console.log('Taking further numbers for ' + ms + ' miliseconds:');
+         print('Taking further numbers for ' + ms + ' miliseconds:'),
+         constant(ch),
+         [cc.takeWithTimeout, ms, { keepInput: true }],
+         [cc.each, console.log],
+         print(''),
 
-  yield cc.chain(ch,
-                 [cc.takeWithTimeout, ms, { keepInput: true }],
-                 [cc.each, console.log]);
+         print('Taking 10 more numbers:'),
+         constant(ch),
+         [cc.take, 10, { keepInput: true }],
+         [cc.each, console.log]);
 
-  console.log();
-  console.log('Taking 10 more numbers:');
-
-  yield cc.chain(ch,
-                 [cc.take, 10, { keepInput: true }],
-                 [cc.each, console.log]);
-});

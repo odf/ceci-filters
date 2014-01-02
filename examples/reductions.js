@@ -1,6 +1,5 @@
 'use strict';
 
-var core = require('ceci-core');
 var cf = require('../index');
 
 var infiniteRange = function*(start) {
@@ -8,34 +7,40 @@ var infiniteRange = function*(start) {
     yield i;
 };
 
+var numbers = function() {
+  return cf.source(infiniteRange(1));
+};
+
+var print = function(text) {
+  return function() {
+    console.log(text);
+  };
+};
+
 var plus = function(a, b) { return a + b; };
 var times = function(a, b) { return a * b; };
 
-core.go(function*() {
-  console.log("Integers:");
-  yield cf.chain(cf.source(infiniteRange(1)),
-                 [cf.take, 10],
-                 [cf.each, console.log]);
 
-  console.log();
-  console.log("Triangle numbers:");
-  yield cf.chain(cf.source(infiniteRange(1)),
-                 [cf.reductions, plus],
-                 [cf.take, 10],
-                 [cf.each, console.log]);
+cf.chain(null,
 
-  console.log();
-  console.log("Tetrahedral numbers:");
-  yield cf.chain(cf.source(infiniteRange(1)),
-                 [cf.reductions, plus],
-                 [cf.reductions, plus],
-                 [cf.take, 10],
-                 [cf.each, console.log]);
+         print('Integers:'),
+         numbers,
+         [cf.take, 10], [cf.each, console.log],
 
-  console.log();
-  console.log("Factorials:");
-  yield cf.chain(cf.source(infiniteRange(1)),
-                 [cf.reductions, times],
-                 [cf.take, 10],
-                 [cf.each, console.log]);
-});
+         print(''),
+
+         print('Triangle numbers:'),
+         numbers, [cf.reductions, plus],
+         [cf.take, 10], [cf.each, console.log],
+
+         print(''),
+
+         print('Tetrahedral numbers:'),
+         numbers, [cf.reductions, plus], [cf.reductions, plus],
+         [cf.take, 10], [cf.each, console.log],
+
+         print(''),
+
+         print('Factorials:'),
+         numbers, [cf.reductions, times],
+         [cf.take, 10], [cf.each, console.log]);
