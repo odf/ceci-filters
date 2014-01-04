@@ -32,9 +32,9 @@ var linefeed = function() {
 };
 
 
-cf.chain(null,
-         channels, cf.merge,   [cf.take, 30], [cf.each, console.log],
-         linefeed(),
-         channels, cf.combine, [cf.take, 20], [cf.each, console.log],
-         linefeed(),
-         channels, cf.zip,     [cf.take, 20], [cf.each, console.log] );
+core.chain(null,
+           channels, cf.merge,   [cf.take, 30], [cf.each, console.log],
+           linefeed(),
+           channels, cf.combine, [cf.take, 20], [cf.each, console.log],
+           linefeed(),
+           channels, cf.zip,     [cf.take, 20], [cf.each, console.log] );

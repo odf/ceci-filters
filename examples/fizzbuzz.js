@@ -1,5 +1,6 @@
 'use strict';
 
+var core = require('ceci-core');
 var cf = require('../index');
 
 var infiniteRange = function*(start) {
@@ -22,6 +23,6 @@ var rest     = intermediates[3];
 
 var ms = parseInt(process.argv[2] || "25");
 
-cf.chain(cf.merge([fizzbuzz, fizz, buzz, rest]),
-         [cf.takeWithTimeout, ms],
-         [cf.each, console.log]);
+core.chain(cf.merge([fizzbuzz, fizz, buzz, rest]),
+           [cf.takeWithTimeout, ms],
+           [cf.each, console.log]);

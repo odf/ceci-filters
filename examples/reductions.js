@@ -1,5 +1,6 @@
 'use strict';
 
+var core = require('ceci-core');
 var cf = require('../index');
 
 var infiniteRange = function*(start) {
@@ -15,23 +16,23 @@ var plus = function(a, b) { return a + b; };
 var times = function(a, b) { return a * b; };
 
 
-cf.chain(null,
+core.chain(null,
 
-         'Integers:', console.log,
-         numbers,
-         [cf.take, 10], [cf.each, console.log],
-         '', console.log,
+           'Integers:', console.log,
+           numbers,
+           [cf.take, 10], [cf.each, console.log],
+           '', console.log,
 
-         'Triangle numbers:', console.log,
-         numbers, [cf.reductions, plus],
-         [cf.take, 10], [cf.each, console.log],
-         '', console.log,
+           'Triangle numbers:', console.log,
+           numbers, [cf.reductions, plus],
+           [cf.take, 10], [cf.each, console.log],
+           '', console.log,
 
-         'Tetrahedral numbers:', console.log,
-         numbers, [cf.reductions, plus], [cf.reductions, plus],
-         [cf.take, 10], [cf.each, console.log],
-         '', console.log,
+           'Tetrahedral numbers:', console.log,
+           numbers, [cf.reductions, plus], [cf.reductions, plus],
+           [cf.take, 10], [cf.each, console.log],
+           '', console.log,
 
-         'Factorials:', console.log,
-         numbers, [cf.reductions, times],
-         [cf.take, 10], [cf.each, console.log]);
+           'Factorials:', console.log,
+           numbers, [cf.reductions, times],
+           [cf.take, 10], [cf.each, console.log]);

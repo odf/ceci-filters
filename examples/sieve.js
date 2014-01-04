@@ -2,6 +2,7 @@
 
 'use strict';
 
+var core = require('ceci-core');
 var cc = require('ceci-channels')
 var cf = require('../index');
 
@@ -40,7 +41,7 @@ var lessThan = function(n) {
 var n = parseInt(process.argv[2] || "50");
 var start = parseInt(process.argv[3] || "2");
 
-cf.chain(cf.pipe(sieve, [], false),
-         [cf.dropWhile, lessThan(start)],
-         [cf.take, n],
-         [cf.each, console.log]);
+core.chain(cf.pipe(sieve, [], false),
+           [cf.dropWhile, lessThan(start)],
+           [cf.take, n],
+           [cf.each, console.log]);
