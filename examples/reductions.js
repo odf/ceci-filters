@@ -11,36 +11,27 @@ var numbers = function() {
   return cf.source(infiniteRange(1));
 };
 
-var print = function(text) {
-  return function() {
-    console.log(text);
-  };
-};
-
 var plus = function(a, b) { return a + b; };
 var times = function(a, b) { return a * b; };
 
 
 cf.chain(null,
 
-         print('Integers:'),
+         'Integers:', console.log,
          numbers,
          [cf.take, 10], [cf.each, console.log],
+         '', console.log,
 
-         print(''),
-
-         print('Triangle numbers:'),
+         'Triangle numbers:', console.log,
          numbers, [cf.reductions, plus],
          [cf.take, 10], [cf.each, console.log],
+         '', console.log,
 
-         print(''),
-
-         print('Tetrahedral numbers:'),
+         'Tetrahedral numbers:', console.log,
          numbers, [cf.reductions, plus], [cf.reductions, plus],
          [cf.take, 10], [cf.each, console.log],
+         '', console.log,
 
-         print(''),
-
-         print('Factorials:'),
+         'Factorials:', console.log,
          numbers, [cf.reductions, times],
          [cf.take, 10], [cf.each, console.log]);

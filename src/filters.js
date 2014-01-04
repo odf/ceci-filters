@@ -123,12 +123,15 @@ exports.chain = function(initial) {
     for (var i = 0; i < args.length; ++i) {
       form = args[i];
       val = yield val;
-      if (Array.isArray(form))
+
+      if (typeof form == 'function')
+        val = form(val);
+      else if (Array.isArray(form) && typeof form[0] == 'function')
         val = form[0].apply(null, [].concat(form[1], val, form.slice(2)));
       else
-        val = form(val);
+        val = form;
     }
-    return val;
 
+    return val;
   });
 };
