@@ -10,26 +10,26 @@ const STOP = 2;
 
 
 var pipeThrough = function(fn, input, output) {
-  var managed = output == null;
+  var managed = (output == null);
   if (managed)
     output = cc.chan();
 
-  core.go(function*() {
+  var done = core.go(function*() {
     var arg, res, val, status;
 
     while (true) {
       if (undefined === (arg = yield cc.pull(input)))
         break;
 
-      res = fn(arg);
+      res = yield fn(arg);
       val = res[0];
       status = res[1];
       if (status == SKIP)
         continue;
-      else if (status == STOP)
-        break;
 
       if (!(yield cc.push(output, (val === undefined ? null : val))))
+        break;
+      if (status == STOP)
         break;
     }
 
@@ -39,6 +39,19 @@ var pipeThrough = function(fn, input, output) {
     }
   });
 
+  if (managed)
+    return output;
+  else
+    return done;
+};
+
+
+exports.tapWith = function(filter, arg, input) {
+  var output = cc.chan();
+  core.go(function*() {
+    yield filter(arg, input, output);
+    cc.close(output);
+  });
   return output;
 };
 
@@ -116,4 +129,50 @@ exports.take = function(n, input, output) {
       },
       input, output);
   }
+};
+
+
+exports.takeUntil = function(pred, input, output) {
+  return pipeThrough(
+    function(arg) {
+      return [arg, (pred(arg) ? STOP : OKAY)];
+    },
+    input, output);
+};
+
+
+exports.takeFor = function(ms, input, output) {
+  var t = cc.timeout(ms);
+
+  return pipeThrough(
+    function(arg) {
+      return core.go(function*() {
+        var go = (yield cc.select(t, { default: true })).value;
+        return [arg, (go ? OKAY : STOP)];
+      });
+    },
+    input, output);
+};
+
+
+exports.drop = function(n, input, output) {
+  var count = false;
+
+  return pipeThrough(
+    function(arg) {
+      return [arg, (++count <= n ? SKIP : OKAY)];
+    },
+    input, output);
+};
+
+
+exports.dropWhile = function(pred, input, output) {
+  var go = false;
+
+  return pipeThrough(
+    function(arg) {
+      go = go || !pred(arg);
+      return [arg, (go ? OKAY : SKIP)];
+    },
+    input, output);
 };

@@ -4,7 +4,7 @@
 
 var core = require('ceci-core');
 var cc = require('ceci-channels')
-var cf = require('../index');
+var cf = require('../src/experimental');
 
 var infiniteRange = function*(start) {
   for (var i = start; ; i += 1)
@@ -17,19 +17,25 @@ var test = function(prime) {
   };
 };
 
-var sieve = function*(outch, done) {
-  var ch  = cf.source(infiniteRange(2));
-  var prime;
+var sieve = function() {
+  var output = cc.chan();
 
-  for (;;) {
-    prime = yield cc.pull(ch);
-    if (!(yield cc.push(outch, prime)))
-      break;
-    ch = cf.filter(test(prime), ch);
-  }
-  cc.close(ch);
+  core.go(function*() {
+    var ch  = cf.source(infiniteRange(2));
+    var prime;
 
-  cc.push(done, true);
+    for (;;) {
+      prime = yield cc.pull(ch);
+      if (!(yield cc.push(output, prime)))
+        break;
+      ch = cf.filter(test(prime), ch);
+    }
+
+    cc.close(ch);
+    cc.close(output);
+  });
+
+  return output;
 };
 
 var lessThan = function(n) {
@@ -41,7 +47,7 @@ var lessThan = function(n) {
 var n = parseInt(process.argv[2] || "50");
 var start = parseInt(process.argv[3] || "2");
 
-core.chain(cf.pipe(sieve, [], false),
+core.chain(sieve(),
            [cf.dropWhile, lessThan(start)],
            [cf.take, n],
            [cf.each, console.log]);
