@@ -1,7 +1,7 @@
 'use strict';
 
 var core = require('ceci-core');
-var cf = require('../index');
+var cf = require('./src/experimental');
 
 var infiniteRange = function*(start) {
   for (var i = start; ; i += 1)
@@ -21,18 +21,20 @@ core.chain(null,
            'Integers:', console.log,
            numbers,
            [cf.take, 10], [cf.each, console.log],
-           '', console.log,
+           ' ', console.log,
 
            'Triangle numbers:', console.log,
-           numbers, [cf.reductions, plus],
+           numbers, [cf.reductions, [plus, 0]],
            [cf.take, 10], [cf.each, console.log],
            '', console.log,
 
            'Tetrahedral numbers:', console.log,
-           numbers, [cf.reductions, plus], [cf.reductions, plus],
+           numbers,
+           [cf.reductions, [plus, 0]],
+           [cf.reductions, [plus, 0]],
            [cf.take, 10], [cf.each, console.log],
            '', console.log,
 
            'Factorials:', console.log,
-           numbers, [cf.reductions, times],
+           numbers, [cf.reductions, [times, 1]],
            [cf.take, 10], [cf.each, console.log]);
