@@ -81,3 +81,17 @@ var reductions = function(fn, start, input, output) {
     return [acc = fn(acc, arg), OKAY];
   })(input, output);
 };
+
+
+var take = function(n, input, output) {
+  if (n == 0) {
+    if (output == null)
+      return cc.chan();
+  } else {
+    var count = 0;
+    return lift(function(arg) {
+      ++count;
+      return [arg, (count < n ? OKAY : STOP)];
+    })(input, output);
+  }
+};
