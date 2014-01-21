@@ -37,6 +37,8 @@ var pipeThrough = function(fn, input, output) {
       cc.close(input);
       cc.close(output);
     }
+
+    return output;
   });
 
   if (managed)
@@ -84,7 +86,8 @@ exports.each = function(fn, input) {
   return core.go(function*() {
     var val;
     while (undefined !== (val = yield cc.pull(input)))
-      fn(val);
+      if (fn)
+        fn(val);
   });
 };
 
@@ -173,6 +176,21 @@ exports.dropWhile = function(pred, input, output) {
     function(arg) {
       go = go || !pred(arg);
       return [arg, (go ? OKAY : SKIP)];
+    },
+    input, output);
+};
+
+
+exports.dropFor = function(ms, input, output) {
+  var t = cc.timeout(ms);
+  var go = false;
+
+  return pipeThrough(
+    function(arg) {
+      return core.go(function*() {
+        go = go || !(yield cc.select(t, { default: true })).value;
+        return [arg, (go ? OKAY : SKIP)];
+      });
     },
     input, output);
 };
