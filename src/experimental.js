@@ -194,3 +194,59 @@ exports.dropFor = function(ms, input, output) {
     },
     input, output);
 };
+
+
+exports.scatter = function(preds, input, outputs) {
+  var open = preds.map(function() { return true });
+  var nrOpen = preds.length;
+  var managed = outputs == null;
+  if (managed)
+    outputs = preds.map(function() { return cc.chan(); });
+
+  core.go(function*() {
+    var val;
+
+    while(nrOpen > 0 && undefined !== (val = yield cc.pull(input))) {
+      for (var i = 0; i < preds.length; ++i) {
+        if ((preds[i] == true) || preds[i](val)) {
+          if (open[i] && !(yield cc.push(outputs[i], val))) {
+            --nrOpen;
+            open[i] = false;
+          }
+          break;
+        }
+      }
+    }
+
+    if (managed)
+      outputs.forEach(cc.close);
+  });
+
+  return outputs;
+};
+
+
+exports.merge = function(inputs, output) {
+  var managed = output == null;
+  if (managed)
+    output = cc.chan();
+  var inputs = inputs.slice();
+
+  core.go(function*() {
+    var res;
+    while (inputs.length > 0) {
+      res = yield cc.select.apply(null, inputs);
+      if (res.value === undefined)
+        inputs.slice(inputs.indexOf(res.channel), 1);
+      else if (!(yield cc.push(output, res.value)))
+        break;
+    }
+
+    if (managed) {
+      cc.close(output);
+      inputs.forEach(cc.close);
+    }
+  });
+
+  return output;
+};

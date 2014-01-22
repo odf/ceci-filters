@@ -27,14 +27,9 @@ var channels = function() {
 };
 
 
-var linefeed = function() {
-  console.log();
-};
-
-
 core.chain(null,
-           channels, cf.merge,   [cf.take, 30], [cf.each, console.log],
-           linefeed(),
+           channels, cf.merge,   [cf.take, 30], [cf.each, console.log] /*,
+           '', console.log,
            channels, cf.combine, [cf.take, 20], [cf.each, console.log],
-           linefeed(),
-           channels, cf.zip,     [cf.take, 20], [cf.each, console.log] );
+           '', console.log,
+           channels, cf.zip,     [cf.take, 20], [cf.each, console.log] */);
