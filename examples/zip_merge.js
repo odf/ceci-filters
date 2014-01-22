@@ -8,7 +8,7 @@ var source = function(x) {
   var ch = cc.chan();
   core.go(function*() {
     for (var i = 0; ; ++i) {
-      yield cc.pull(cc.timeout(Math.random() * 100));
+      yield core.sleep(Math.random() * 100);
       if (!(yield cc.push(ch, "" + x + "." + i)))
         break;
     }
