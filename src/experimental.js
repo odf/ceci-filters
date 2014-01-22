@@ -87,7 +87,7 @@ exports.each = function(fn, input) {
     var val;
     while (undefined !== (val = yield cc.pull(input)))
       if (fn)
-        fn(val);
+        yield fn(val);
   });
 };
 
@@ -95,7 +95,7 @@ exports.each = function(fn, input) {
 exports.map = function(fn, input, output) {
   return pipeThrough(
     function(arg) {
-      return [fn(arg), OKAY];
+      return core.lift(Array)(fn(arg), OKAY);
     },
     input, output);
 };
