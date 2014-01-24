@@ -250,3 +250,34 @@ exports.merge = function(inputs, output) {
 
   return output;
 };
+
+
+exports.combine = function(inputs, output) {
+  var managed = output == null;
+  if (managed)
+    output = cc.chan();
+  var active = inputs.slice();
+  var current = new Array(inputs.length);
+
+  core.go(function*() {
+    var res;
+
+    while (active.length > 0) {
+      res = yield cc.select.apply(null, active);
+      if (res.value === undefined)
+        active.slice(active.indexOf(res.channel), 1);
+      else {
+        current[inputs.indexOf(res.channel)] = res.value;
+        if (!(yield cc.push(output, current)))
+          break;
+      }
+    }
+
+    if (managed) {
+      cc.close(output);
+      inputs.forEach(cc.close);
+    }
+  });
+
+  return output;
+};
