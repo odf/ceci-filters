@@ -4,7 +4,7 @@
 
 var core = require('ceci-core');
 var cc = require('ceci-channels')
-var cf = require('../src/experimental');
+var cf = require('../index');
 
 var infiniteRange = function*(start) {
   for (var i = start; ; i += 1)
