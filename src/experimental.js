@@ -237,7 +237,7 @@ exports.merge = function(inputs, output) {
     while (inputs.length > 0) {
       res = yield cc.select.apply(null, inputs);
       if (res.value === undefined)
-        inputs.slice(inputs.indexOf(res.channel), 1);
+        inputs.splice(inputs.indexOf(res.channel), 1);
       else if (!(yield cc.push(output, res.value)))
         break;
     }
@@ -265,12 +265,48 @@ exports.combine = function(inputs, output) {
     while (active.length > 0) {
       res = yield cc.select.apply(null, active);
       if (res.value === undefined)
-        active.slice(active.indexOf(res.channel), 1);
+        active.splice(active.indexOf(res.channel), 1);
       else {
         current[inputs.indexOf(res.channel)] = res.value;
         if (!(yield cc.push(output, current)))
           break;
       }
+    }
+
+    if (managed) {
+      cc.close(output);
+      inputs.forEach(cc.close);
+    }
+  });
+
+  return output;
+};
+
+
+exports.zip = function(inputs, output) {
+  var managed = output == null;
+  if (managed)
+    output = cc.chan();
+  var current = new Array(inputs.length);
+
+  core.go(function*() {
+    var done = false;
+    var res, pending;
+
+    while (!done) {
+      pending = inputs.slice();
+      while (pending.length > 0) {
+        res = yield cc.select.apply(null, pending);
+        if (res.value === undefined) {
+          done = true;
+          break;
+        } else {
+          current[inputs.indexOf(res.channel)] = res.value;
+          pending.splice(pending.indexOf(res.channel), 1);
+        }
+      }
+      if (!done && !(yield cc.push(output, current.slice())))
+        break;
     }
 
     if (managed) {
