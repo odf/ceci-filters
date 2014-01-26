@@ -28,8 +28,8 @@ var channels = function() {
 
 
 core.chain(null,
-           channels, cf.merge,   [cf.take, 30], [cf.each, console.log],
+           channels, cf.merge,   [cf.take, 30], [cc.each, console.log],
            '', console.log,
-           channels, cf.combine, [cf.take, 20], [cf.each, console.log],
+           channels, cf.combine, [cf.take, 20], [cc.each, console.log],
            '', console.log,
-           channels, cf.zip,     [cf.take, 20], [cf.each, console.log]);
+           channels, cf.zip,     [cf.take, 20], [cc.each, console.log]);

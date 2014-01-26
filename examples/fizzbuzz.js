@@ -1,6 +1,7 @@
 'use strict';
 
 var core = require('ceci-core');
+var cc = require('ceci-channels');
 var cf = require('../index');
 
 var infiniteRange = function*(start) {
@@ -14,7 +15,7 @@ var preds = [
   function(n) { return n % 5 == 0 },
   true];
 
-var intermediates = cf.scatter(preds, cf.source(infiniteRange(1)));
+var intermediates = cf.scatter(preds, cc.fromGenerator(infiniteRange(1)));
 
 var fizzbuzz = cf.map(
   function(n) {
@@ -40,4 +41,4 @@ var ms = parseInt(process.argv[2] || "25");
 
 core.chain(cf.merge([fizzbuzz, fizz, buzz, rest]),
            [cf.takeFor, ms],
-           [cf.each, console.log]);
+           [cc.each, console.log]);

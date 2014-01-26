@@ -58,40 +58,6 @@ exports.tapWith = function(filter, arg, input) {
 };
 
 
-exports.source = function(gen, output) {
-  var managed = output == null;
-  if (managed)
-    output = cc.chan();
-
-  core.go(function*() {
-    var step;
-
-    while (true) {
-      step = gen.next();
-      if (step.done)
-        break;
-      if (!(yield cc.push(output, step.value)))
-        break
-    }
-
-    if (managed)
-      cc.close(output);
-  });
-
-  return output;
-};
-
-
-exports.each = function(fn, input) {
-  return core.go(function*() {
-    var val;
-    while (undefined !== (val = yield cc.pull(input)))
-      if (fn)
-        yield fn(val);
-  });
-};
-
-
 exports.map = function(fn, input, output) {
   return pipeThrough(
     function(arg) {

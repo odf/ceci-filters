@@ -11,7 +11,7 @@ var infiniteRange = function*(start) {
 };
 
 var ms = parseInt(process.argv[2] || "10");
-var ch = cf.source(infiniteRange(1));
+var ch = cc.fromGenerator(infiniteRange(1));
 
 
 core.chain(null,
@@ -19,49 +19,49 @@ core.chain(null,
            'Taking the first 10 numbers:', console.log,
            ch,
            [cf.tapWith, [cf.take, 10]],
-           [cf.each, console.log],
+           [cc.each, console.log],
            '', console.log,
 
            'Taking further numbers for ' + ms + ' miliseconds:', console.log,
            ch,
            [cf.tapWith, [cf.takeFor, ms]],
-           [cf.each, console.log],
+           [cc.each, console.log],
            '', console.log,
 
            'Taking 10 more numbers:', console.log,
            ch,
            [cf.tapWith, [cf.take, 10]],
-           [cf.each, console.log],
+           [cc.each, console.log],
            '', console.log,
 
            'Dropping numbers for ' + ms + ' miliseconds, then taking 10 more:',
            console.log,
            ch,
            [cf.tapWith, [cf.takeFor, ms]],
-           [cf.each],
+           [cc.each],
            ch,
            [cf.tapWith, [cf.take, 10]],
-           [cf.each, console.log],
+           [cc.each, console.log],
            '', console.log,
 
            'Taking 10 more numbers:', console.log,
            ch,
            [cf.tapWith, [cf.take, 10]],
-           [cf.each, console.log],
+           [cc.each, console.log],
            '', console.log,
 
            'Dropping 10 numbers, then taking 10 more:',
            console.log,
            ch,
            [cf.tapWith, [cf.take, 10]],
-           [cf.each],
+           [cc.each],
            ch,
            [cf.tapWith, [cf.take, 10]],
-           [cf.each, console.log],
+           [cc.each, console.log],
            '', console.log,
 
            'Taking 10 more numbers:', console.log,
            ch,
            [cf.tapWith, [cf.take, 10]],
-           [cf.each, console.log],
+           [cc.each, console.log],
            '', console.log);

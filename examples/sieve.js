@@ -21,7 +21,7 @@ var sieve = function() {
   var output = cc.chan();
 
   core.go(function*() {
-    var ch  = cf.source(infiniteRange(2));
+    var ch  = cc.fromGenerator(infiniteRange(2));
     var prime;
 
     for (;;) {
@@ -50,4 +50,4 @@ var start = parseInt(process.argv[3] || "2");
 core.chain(sieve(),
            [cf.dropWhile, lessThan(start)],
            [cf.take, n],
-           [cf.each, console.log]);
+           [cc.each, console.log]);
