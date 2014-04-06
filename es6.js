@@ -4,9 +4,9 @@ var core = require('ceci-core');
 var cc   = require('ceci-channels');
 
 
-const OKAY = 0;
-const SKIP = 1;
-const STOP = 2;
+var OKAY = 0;
+var SKIP = 1;
+var STOP = 2;
 
 
 var pipeThrough = function(fn, input, output) {
