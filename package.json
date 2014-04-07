@@ -1,15 +1,37 @@
 {
   "name": "ceci-filters",
   "version": "0.1.0",
-  "main": "./index.js",
+  "description": "Higher-level channel operations for Ceci (experimental)",
+  "keywords": [
+    "async",
+    "generators",
+    "channels",
+    "go",
+    "clojure",
+    "core.async"
+  ],
+  "homepage": "https://github.com/odf/ceci-filters",
+  "bugs": {
+    "url": "https://github.com/odf/ceci-filters/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Olaf Delgado-Friedrichs",
+    "email": "olaf.delgado@gmail.com"
+  },
+  "main": "./lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/odf/ceci-filters.git"
+  },
   "dependencies": {
-    "ceci-core": "~0.1.0",
-    "ceci-channels": "odf/ceci-channels"
+    "ceci-core": "~0.2.0",
+    "ceci-channels": "~0.1.3"
   },
   "devDependencies": {
     "regenerator": "~0.3.9"
   },
   "scripts": {
-    "build": "./node_modules/.bin/regenerator es6.js >index.js"
+    "prepublish": "make"
   }
 }
