@@ -93,11 +93,24 @@ var reduceArray = function(coll, f, init) {
   return val;
 };
 
+var pushArray = function(x, y) {
+  x = x || [];
+  if (y !== undefined)
+    x.push(y);
+  return x;
+};
+
+var transformArray = function(xform, coll) {
+  return transduce(xform, pushArray, reduceArray, coll);
+};
+
+
 console.log(reduceArray(a, add, 0));
 console.log(transduce(map(x2), add, reduceArray, a));
 console.log(transduce(filter(even), add, reduceArray, a));
 console.log(transduce(compose(filter(even), map(x2)), add, reduceArray, a));
 
+console.log(transformArray(compose(filter(even), map(x2)), a));
 
 // ===
 
