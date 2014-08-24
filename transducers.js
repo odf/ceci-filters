@@ -128,7 +128,7 @@ var transduceAsync = function(xform, f, reduce, init, coll) {
 
   return ceci.go(function*() {
     var ret = yield reduce(coll, xf, init);
-    ret = f(isReduced(ret) ? ret.val : ret);
+    ret = (yield f(isReduced(ret)) ? ret.val : ret);
     return isReduced(ret) ? ret.val : ret;
   });
 };
@@ -140,9 +140,28 @@ var reduceChannel = function(ch, f, init) {
   return ceci.go(function*() {
     var val;
     while (undefined !== (val = yield chan.pull(ch)))
-      acc = f(acc, val);
+      acc = yield f(acc, val);
     return acc;
   });
+};
+
+
+var transformChannel = function(xform, input) {
+  var output = chan.chan();
+
+  var xf = xform(function(x, y) {
+    if (y !== undefined)
+      return chan.push(x, y);
+  });
+
+  ceci.top(ceci.go(function*() {
+    var val;
+    while (undefined !== (val = yield chan.pull(input)))
+      yield xf(output, val);
+    output.close();
+  }));
+
+  return output;
 };
 
 
@@ -161,6 +180,12 @@ var range = function(start, stop) {
 
 
 ceci.top(ceci.go(function*() {
-  var xform = compose(filter(even), map(x2));
+  var xform, ch;
+
+  xform = compose(filter(even), map(x2));
+
   console.log(yield transduceAsync(xform, add, reduceChannel, range(1, 6)));
+
+  ch = transformChannel(xform, range(1, 6));
+  console.log(yield reduceChannel(ch, pushArray));
 }));
