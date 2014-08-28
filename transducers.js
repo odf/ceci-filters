@@ -69,6 +69,22 @@ var filter = function(pred) {
 };
 
 
+var mapcat = function(f) {
+  return function(f1) {
+    return function(result, input) {
+      if (input === undefined)
+        return f1(result);
+      else {
+        var res = f(input);
+        var tmp = result;
+        for (var i = 0; i < res.length; ++i)
+          tmp = f1(result, res[i]);
+        return tmp;
+      }
+    };
+  };
+};
+
 // ===
 
 var compose = function(f, g) {
@@ -150,8 +166,10 @@ var transformChannel = function(xform, input) {
   var output = chan.chan();
 
   var xf = xform(function(x, y) {
-    if (y !== undefined)
-      return chan.push(x, y);
+    return ceci.go(function*() {
+      if ((yield y) !== undefined)
+        return yield chan.push(x, y);
+    });
   });
 
   ceci.top(ceci.go(function*() {
@@ -185,6 +203,16 @@ ceci.top(ceci.go(function*() {
   xform = compose(filter(even), map(x2));
 
   console.log(yield transduceAsync(xform, add, reduceChannel, range(1, 6)));
+
+  ch = transformChannel(xform, range(1, 6));
+  console.log(yield reduceChannel(ch, pushArray));
+
+  xform = mapcat(function(n) {
+    var out = [];
+    for (var i = 1; i <= n; ++i)
+      out.push(i);
+    return out;
+  });
 
   ch = transformChannel(xform, range(1, 6));
   console.log(yield reduceChannel(ch, pushArray));
