@@ -69,6 +69,21 @@ var filter = function(pred) {
 };
 
 
+var take = function(n) {
+  return function(f1) {
+    return function(result, input) {
+      if (input === undefined)
+        return f1(result);
+      else if (n > 0) {
+        n -= 1;
+        return f1(result, input);
+      } else
+        return reduced(result);
+    };
+  };
+};
+
+
 var mapcat = function(f) {
   return function(f1) {
     return function(result, input) {
@@ -99,12 +114,13 @@ var compose = function(f, g) {
 var add  = function(x, y) { return (x || 0) + (y || 0); };
 var x2   = function(x) { return 2*x; };
 var even = function(x) { return x % 2 == 0; };
+var echo = function(x) { console.log('>' + x + '<'); return x; };
 
 var a = [1,2,3,4,5];
 
 var reduceArray = function(coll, f, init) {
   var val = init;
-  for (var i = 0; i < coll.length; ++i)
+  for (var i = 0; !isReduced(val) && i < coll.length; ++i)
     val = f(val, coll[i]);
   return val;
 };
@@ -127,6 +143,9 @@ console.log(transduce(filter(even), add, reduceArray, a));
 console.log(transduce(compose(filter(even), map(x2)), add, reduceArray, a));
 
 console.log(transformArray(compose(filter(even), map(x2)), a));
+console.log(transformArray(compose(map(echo), take(2)), a));
+
+console.log();
 
 // ===
 
@@ -155,7 +174,7 @@ var reduceChannel = function(ch, f, init) {
 
   return ceci.go(function*() {
     var val;
-    while (undefined !== (val = yield chan.pull(ch)))
+    while (!isReduced(acc) && undefined !== (val = yield chan.pull(ch)))
       acc = yield f(acc, val);
     return acc;
   });
@@ -174,8 +193,8 @@ var transformChannel = function(xform, input) {
 
   ceci.top(ceci.go(function*() {
     var val;
-    while (undefined !== (val = yield chan.pull(input)))
-      yield xf(output, val);
+    while (!isReduced(val) && undefined !== (val = yield chan.pull(input)))
+      val = yield xf(output, val);
     output.close();
   }));
 
@@ -197,6 +216,13 @@ var range = function(start, stop) {
 };
 
 
+var printChannel = function(ch) {
+  ceci.top(ceci.go(function*() {
+    console.log(yield reduceChannel(ch, pushArray));
+  }));
+};
+
+
 ceci.top(ceci.go(function*() {
   var xform, ch;
 
@@ -204,8 +230,7 @@ ceci.top(ceci.go(function*() {
 
   console.log(yield transduceAsync(xform, add, reduceChannel, range(1, 6)));
 
-  ch = transformChannel(xform, range(1, 6));
-  console.log(yield reduceChannel(ch, pushArray));
+  printChannel(transformChannel(xform, range(1, 6)));
 
   xform = mapcat(function(n) {
     var out = [];
@@ -214,6 +239,7 @@ ceci.top(ceci.go(function*() {
     return out;
   });
 
-  ch = transformChannel(xform, range(1, 6));
-  console.log(yield reduceChannel(ch, pushArray));
+  printChannel(transformChannel(xform, range(1, 6)));
+  console.log(yield transduceAsync(take(5), add, reduceChannel, range(1, 0)));
+  printChannel(transformChannel(take(5), range(1, 0)));
 }));
