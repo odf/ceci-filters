@@ -207,6 +207,8 @@ var transformChannel = function(xform, input) {
     var val;
     while (!isReduced(val) && undefined !== (val = yield chan.pull(input)))
       val = yield xf(output, val);
+    if (isReduced(val))
+      yield val.val;
     output.close();
   }));
 
@@ -242,6 +244,8 @@ ceci.top(ceci.go(function*() {
 
   console.log(yield transduceAsync(xform, add, reduceChannel, range(1, 6)));
   console.log(yield transduceAsync(mapcat(upto), add,
+                                   reduceChannel, range(1, 6)));
+  console.log(yield transduceAsync(compose(mapcat(upto), take(5)), add,
                                    reduceChannel, range(1, 6)));
   yield printChannel(transformChannel(xform, range(1, 6)));
 
